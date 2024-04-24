@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "root",
+    "password": "20112003",
+    "database": "anotepad",
+    "host": "117.1.29.215",
+    "port":8080,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "20112003",
+    "database": "anotepad",
+    "host": "117.1.29.215",
+    "port":8080,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "20112003",
+    "database": "anotepad",
+    "host": "117.1.29.215",
+    "port":8080,
+    "dialect": "mysql"
+  }
+}

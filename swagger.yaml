@@ -1,0 +1,626 @@
+openapi: 3.0.3
+info:
+  title: Swagger Anotepad
+  description: |-
+    Danh sách api cho website anotepad.
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: http://117.1.29.215:4000
+paths:
+  /api/anotepad/user/register/cookie:
+    get: 
+     tags:
+        - user
+     summary: ""
+     description: Khi người dùng truy cập vào website thì api này sẽ check nếu người dùng chưa có tài khoản thì sẽ tạo một user mới sau đó trả về cookie cho người dùng .
+     operationId: registercookie
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/register:
+    post:
+     tags:
+        - user
+     summary: "" 
+     description: Người dùng đăng ký tài khoản, nếu tồn tại tài khoản với cookie của người dùng thì sẽ cậpthông tin cho tài khoản email và password 
+     operationId: register
+     requestBody:
+        description: login user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/update:
+    put:
+      tags:
+        - user
+      summary: ""
+      description: Cập nhật thông tin người dùng
+      operationId: updateuser 
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     email:
+                      type: string
+                      example: theUser
+                     password:
+                      type: string
+                      example: john@email.com
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/login:
+    post:
+      tags:
+        - user
+      summary: ""
+      description: Người dùng đăng nhập
+      operationId: login    
+      requestBody:
+        description: login user object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     email:
+                      type: string
+                      example: theUser
+                     password:
+                      type: string
+                      example: john@email.com
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/information:
+    get: 
+     tags:
+        - user
+     summary: ""
+     description: Trả về thông tin tài khoản , số note lưu trữ
+     operationId: userinformation
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/logout:
+    get: 
+     tags:
+        - user
+     summary: ""
+     description: Đăng xuất khỏi tài khoản
+     operationId: logout
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/user:
+    get: 
+     tags:
+        - user
+     summary: ""
+     description: Lấy danh sách người dùng
+     operationId: getalluser
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/user/{userid}:
+    put:
+      tags:
+        - user
+      summary: ""
+      description: Admin Cập nhật thông tin người dùng
+      operationId: adminupdateuser
+      parameters:
+        - name: userid
+          in: path
+          description: id user need to update 
+          required: true
+          schema:
+            type: integer      
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     email:
+                      type: string
+                      example: theUser
+                     password:
+                      type: string
+                      example: john@email.com
+      responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: admin xóa tài khoản người dùng 
+      operationId: deleteUser
+      parameters:
+        - name: userid
+          in: path
+          description: xóa người dùng có id 
+          required: true
+          schema:
+            type: integer
+      responses:
+        '400':
+          description: Invalid email supplied
+        '404':
+          description: User not found
+    get: 
+     tags:
+        - user
+     summary: ""
+     description: Lấy thông tin người dùng
+     operationId: getuserinfo
+     parameters:
+        - name: userid
+          in: path
+          description: lấy thông tin người dùng có id
+          required: true
+          schema:
+            type: integer
+     responses:
+        default:
+          description: successful operation
+
+     post:
+      tags:
+        - user
+      summary: cập nhật ảnh đại diện
+      description: người dùng đăng ảnh đại diện lên
+      operationId: setavatar
+      security:
+      - Bearer: []  
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/note/allnote:
+    get: 
+     tags:
+        - note
+     summary: ""
+     description: Lấy danh sách notes của hệ thống
+     operationId: admingetnote
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/note/:
+    post:
+      tags:
+        - note
+      summary: ""
+      description: Tạo một note mới,  note_type có 3 type (SimpleNote,RichNote,TaskList) , status có 3 trạng thái (public,private,protected), khi note ở trạng thái protected cần set password_access và password_edit
+      operationId: createsimplenote   
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     title:
+                      type: string
+                      example: First Note
+                     note_type: 
+                      type: string
+                      example: SimpleNote
+                     folder_id:
+                      type: integer
+                      example: 1
+                     status: 
+                      type: string
+                      example: public
+                     content: 
+                      type: string
+                      example: Dev web anotepad
+                     password_access: 
+                      type: string
+                      example: 20112003
+                     password_edit: 
+                      type: string
+                      example: 20112003
+      responses:
+        default:
+          description: successful operation
+    get: 
+     tags:
+        - note
+     summary: ""
+     description: Lấy danh sách notes của người dùng
+     operationId: usergetnote
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/note/{noteid}:
+    get: 
+     tags:
+        - note
+     summary: ""
+     description: Trả về chi tiết note
+     operationId: getdetailnote
+     parameters:
+        - name: noteid
+          in: path
+          description: id note need to get
+          required: true
+          schema:
+            type: integer    
+     responses:
+        default:
+          description: successful operation
+    put:
+      tags:
+        - note
+      summary: ""
+      description: update note
+      operationId: updatenote 
+      parameters:
+        - name: noteid
+          in: path
+          description: id note need to get
+          required: true
+          schema:
+            type: integer  
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     title:
+                      type: string
+                      example: First Note
+                     note_type: 
+                      type: string
+                      example: SimpleNote
+                     folder_id:
+                      type: integer
+                      example: 1
+                     status: 
+                      type: string
+                      example: public
+                     content: 
+                      type: string
+                      example: Dev web anotepad
+                     password_access: 
+                      type: string
+                      example: 20112003
+                     password_edit: 
+                      type: string
+                      example: 20112003
+      responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+        - note
+      summary: Delete note
+      description: người dùng xóa note
+      operationId: deletenote
+      parameters:
+        - name: noteid
+          in: path
+          description: xóa note có id 
+          required: true
+          schema:
+            type: integer
+      responses:
+        '404':
+          description: Note not found
+  /api/anotepad/note/accesspermission:
+    post:
+      tags:
+        - note
+      summary: ""
+      description: Cho phép một người dùng có quyền truy cập vào một note ở chế độ protected
+      operationId: accessnote   
+      requestBody:
+        description: note access object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     note_id:
+                      type: integer
+                      example: 1
+                     password_access:
+                      type: string
+                      example: 20112003
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/note/editpermission:
+    post:
+      tags:
+        - note
+      summary: ""
+      description: Cho phép một người dùng có quyền chỉnh sửa một note ở chế độ protected
+      operationId: editnote   
+      requestBody:
+        description: note edit object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     note_id:
+                      type: integer
+                      example: 1
+                     password_edit:
+                      type: string
+                      example: 20112003
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/folder/:
+    post:
+      tags:
+        - folder
+      summary: ""
+      description: Tạo một folder mới
+      operationId: createfolder  
+      requestBody:
+        description: Created folder object
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     name:
+                      type: string
+                      example: folder name
+      responses:
+        default:
+          description: successful operation
+  /api/anotepad/folder/folders:
+    get: 
+     tags:
+        - folder
+     summary: ""
+     description: Lấy danh sách folder của người dùng
+     operationId: getallfolder
+     responses:
+        default:
+          description: successful operation
+  /api/anotepad/folder/{folderid}:
+    get: 
+     tags:
+        - folder
+     summary: ""
+     description: Trả về danh sách note trong folder
+     operationId: getnotesinfolder
+     parameters:
+        - name: folderid
+          in: path
+          description: id folder need to get
+          required: true
+          schema:
+            type: integer    
+     responses:
+        default:
+          description: successful operation
+    put:
+      tags:
+        - folder
+      summary: ""
+      description: cập nhật folder name
+      operationId: updatefolder
+      parameters:
+        - name: folderid
+          in: path
+          description: id folder need to update
+          required: true
+          schema:
+            type: integer  
+      requestBody:
+        description: "Object update folder"
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     name:
+                      type: string
+                      example: First Folder
+      responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+        - folder
+      summary: Delete folder
+      description: người dùng xóa folder
+      operationId: deletefolder
+      parameters:
+        - name: folderid
+          in: path
+          description: xóa folder có id 
+          required: true
+          schema:
+            type: integer
+      responses:
+        '404':
+          description: Note not found
+
+  /api/anotepad/comment/{commentid}:
+    get: 
+     tags:
+        - comment
+     summary: ""
+     description: Trả về danh sách comment
+     operationId: getallcomment
+     parameters:
+        - name: commentid
+          in: path
+          description: id comment need to get
+          required: true
+          schema:
+            type: integer    
+     responses:
+        default:
+          description: successful operation
+    delete:
+      tags:
+        - comment
+      summary: Delete comment
+      description: người dùng xóa comment
+      operationId: deletecomment
+      parameters:
+        - name: commentid
+          in: path
+          description: xóa comment có id 
+          required: true
+          schema:
+            type: integer
+      responses:
+        '404':
+          description: Note not found
+  /api/anotepad/comment/{noteid}:
+    post:
+      tags:
+        - comment
+      summary: ""
+      description: tạo comment 
+      operationId: createcomment
+      parameters:
+        - name: noteid
+          in: path
+          description: id comment need to update
+          required: true
+          schema:
+            type: integer  
+      requestBody:
+        description: "Object create comment"
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                     user_name:
+                      type: string
+                      example: Hoàng Tuấn
+                     comment:
+                      type: string
+                      example: comment
+      responses:
+        default:
+          description: successful operation
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: '12345'
+      xml:
+        name: user
+    SimpleNote:
+       type: object
+       properties:
+         title:
+          type: string
+          example: First Note
+         folder_id:
+          type: integer
+          example: 1
+         note_type: 
+          type: string
+          example: SimpleNote
+         status: 
+          type: string
+          example: public
+         content: 
+          type: string
+          example: Dev web anotepad
+         password_access: 
+          type: string
+          example: 20112003
+         password_edit: 
+          type: string
+          example: 20112003
+    TaskListNote:
+       type: object
+       properties:
+         title:
+          type: string
+          example: First Note
+         folder_id:
+          type: integer
+          example: 1
+         note_type: 
+          type: string
+          example: SimpleNote
+         status: 
+          type: string
+          example: public
+         TaskList: 
+          type: array
+          example: [
+            {content:Viết API,status:true}
+          ]
+         password_access: 
+          type: string
+          example: 20112003
+         password_edit: 
+          type: string
+          example: 20112003
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: '12345'
+      xml:
+        name: user
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
