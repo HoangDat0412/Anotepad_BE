@@ -1,7 +1,4 @@
-const { where } = require('sequelize');
 const {Comments,Notes} = require('../models');
-
-
 const createComment = async (req,res)=>{
     const note_id = parseInt(req.params.id)
     const {user_name,comment} = req.body;
@@ -16,8 +13,6 @@ const createComment = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
-
 const deleteComment = async (req,res)=>{
     const user_id = req.user.id;
     const comment_id = parseInt(req.params.id)
@@ -51,7 +46,6 @@ const deleteComment = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
 const getListComment = async (req,res)=>{
     const note_id = parseInt(req.params.id)
     try {

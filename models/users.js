@@ -27,6 +27,16 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: false, 
       },
     },
+    user_name: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: false, 
+      },
+    },
+    verify: {
+      type: DataTypes.BOOLEAN,
+      defaultValue:false
+    },
     role: {
       type: DataTypes.STRING,
       defaultValue: "GUEST",
@@ -35,12 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         isIn: [["GUEST","USER","ADMIN"]],
       }  
     },
-    cookie: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: false, 
-      },
-    },
+
   }, {
     sequelize,
     modelName: 'Users',

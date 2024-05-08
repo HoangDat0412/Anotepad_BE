@@ -1,5 +1,5 @@
 const express = require("express");
-const {RegisterCookie ,createUser,updateUserInfo,login,getUserInformation,getUser,deleteUser,getUserFromId,updateUser,getdashboardinfo,getLoginHistory} = require("../controllers/user.controllers");
+const {RegisterCookie ,createUser,updateUserInfo,login,getUserInformation,getUser,deleteUser,getUserFromId,updateUser,getdashboardinfo,getLoginHistory,Verifyemail,forgotPassword,resetPassword,updatePassword} = require("../controllers/user.controllers");
 const {authenticate} = require("../middlewares/auth/authenticate");
 const { auAdmin } = require("../middlewares/auth/auAdmin");
 const { authenticateRegister } = require("../controllers/authenticateRegister");
@@ -8,6 +8,7 @@ const UserRouter = express.Router()
 
 UserRouter.get('/register/cookie',authenticateRegister,RegisterCookie)
 UserRouter.post('/register',authenticateCreate,createUser)
+UserRouter.get('/verify',Verifyemail)
 UserRouter.put('/update',authenticate,updateUserInfo)
 UserRouter.post('/login',login)
 UserRouter.get('/information',authenticate,getUserInformation)
@@ -18,6 +19,9 @@ UserRouter.get('/logout', (req, res) => {
 
 UserRouter.get('/loginhistory',authenticate,getLoginHistory)
 
+UserRouter.post('/forgotpassword',forgotPassword)
+UserRouter.post('/resetpassword/:email/:token',resetPassword)
+UserRouter.post('/updatepassword',authenticate,updatePassword)
 
 // quản lý người dùng 
 UserRouter.get('/',authenticate,auAdmin(["ADMIN"]),getUser)

@@ -1,4 +1,3 @@
-const { where } = require('sequelize');
 const {Folders,Notes} = require('../models');
 
 const createFolder = async (req,res)=>{
@@ -14,7 +13,6 @@ const createFolder = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
 const getAllFolders = async (req,res)=>{
     const user_id = req.user.id;
     try {
@@ -32,12 +30,9 @@ const getAllFolders = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
-
 const getDetailFolder = async (req,res)=>{
     const user_id = req.user.id;
     const folder_id = parseInt(req.params.id)
-
     try {
         const notes = await Notes.findAll({
             where:{
@@ -54,7 +49,6 @@ const getDetailFolder = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
 const updateFolder = async (req,res)=>{
     const user_id = req.user.id;
     const folder_id = parseInt(req.params.id)
@@ -87,7 +81,6 @@ const updateFolder = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
 const deleteFolder = async (req,res)=>{
     const user_id = req.user.id;
     const folder_id = parseInt(req.params.id)
@@ -114,7 +107,6 @@ const deleteFolder = async (req,res)=>{
         res.status(500).send(error)
     }
 }
-
 module.exports= {
     createFolder,
     getAllFolders,

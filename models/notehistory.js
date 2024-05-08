@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class TaskLists extends Model {
+  class NoteHistory extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,22 +13,22 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  TaskLists.init({
+  NoteHistory.init({
     note_id: {
       type:DataTypes.INTEGER,
       validate: {
         notEmpty: true
       },
     },
-    content: {
-      type: DataTypes.STRING,
+    user_id: {
+      type:DataTypes.INTEGER,
       validate: {
-        notEmpty: true, 
+        notEmpty: true
       },
-    }
+    },
   }, {
     sequelize,
-    modelName: 'TaskLists',
+    modelName: 'NoteHistory',
   });
-  return TaskLists;
+  return NoteHistory;
 };

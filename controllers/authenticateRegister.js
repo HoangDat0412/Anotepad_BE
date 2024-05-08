@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { decode_password } = require("../util/config");
 const authenticateRegister = (req,res,next)=>{
     const authHeader = req.headers.authorization;
     if(!authHeader){
@@ -6,7 +7,7 @@ const authenticateRegister = (req,res,next)=>{
     }
     try {
         const token = authHeader.split(' ')[1];
-        const decode = jwt.verify(token,"20112003");
+        const decode = jwt.verify(token,decode_password);
         if (decode) {
             req.user = decode;
             res.status(200).send("Bạn đã có tài khoản")

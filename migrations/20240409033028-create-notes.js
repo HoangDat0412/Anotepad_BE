@@ -33,6 +33,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      highlight: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+      },
       password_access: {
         type: Sequelize.STRING,
         allowNull: true,

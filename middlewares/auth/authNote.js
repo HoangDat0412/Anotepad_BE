@@ -1,16 +1,13 @@
-const { where } = require('sequelize');
-const {Users,Notes,AccessNotes} = require('../../models');
+const {Notes,AccessNotes} = require('../../models');
 const authNote = async (req,res,next)=>{
     const note_id = parseInt(req.params.id)
     const user_id = req.user.id;
     try {
-
         const note = await Notes.findOne({
             where:{
                 id:note_id
             }
         })
-
         if( note.status === "protected"){
             const listAccess = await AccessNotes.findAll({
                 where:{
