@@ -62,6 +62,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: false, 
       },
     },
+    deletenote: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   }, {
     sequelize,
     modelName: 'Notes',

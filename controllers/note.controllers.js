@@ -67,8 +67,12 @@ const getNote = async (req, res) => {
     const note = await Notes.findOne({
       where: {
         id,
+        deletenote:false
       },
     });
+    if(!note){
+      res.status(404).send("Not found note")
+    }
     let content;
 
     if (note.note_type === "TaskList") {
@@ -155,13 +159,25 @@ const getNote = async (req, res) => {
 const getAllNote = async (req, res) => {
   try {
     const notes = await sequelize.query(
-      `select id,title,note_type,folder_id,user_id,status,createdAt from Notes where user_id=${req.user.id}`
+      `select id,title,note_type,folder_id,user_id,status,createdAt from Notes where user_id=${req.user.id} and deletenote=false`
     );
 
-    if (notes) {
-      res.status(200).send(notes[0]);
+    if (notes[0].length > 0) {
+      res.status(200).send({
+        notes:notes[0],
+        folder:{
+          name:"All Note",
+          id:0
+        }
+      });
     } else {
-      res.status(404).send("Not found !");
+      res.status(200).send({
+        notes:[],
+        folder:{
+          name:"All Note",
+          id:0
+        }
+      });
     }
   } catch (error) {}
 };
@@ -276,7 +292,37 @@ const updateNote = async (req, res) => {
     res.status(500).send(error);
   }
 };
-
+// return note 
+const ReturnNote = async (req,res) =>{
+  const note_id = parseInt(req.params.id);
+  const user_id = req.user.id;
+  try {
+    const note = await Notes.findOne({
+      where: {
+        id: note_id,
+      },
+    });
+    if (note) {
+      if (note.user_id === user_id) {
+        await Notes.update({
+          deletenote:false,
+        },{
+          where: {
+            id:note_id,
+          },
+        });
+        res.status(200).send("Return note success");
+      } else {
+        res.status(401).send("You don't have access");
+      }
+    } else {
+      res.status(404).send("not found note");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+// delete in trash
 const deleteNote = async (req, res) => {
   const note_id = parseInt(req.params.id);
   const user_id = req.user.id;
@@ -323,6 +369,221 @@ const deleteNote = async (req, res) => {
       }
     } else {
       res.status(404).send("not found note");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+// delete note
+const SetNoteIsDelete = async (req,res) =>{
+  const note_id = parseInt(req.params.id);
+  const user_id = req.user.id;
+  try {
+    const note = await Notes.findOne({
+      where: {
+        id: note_id,
+      },
+    });
+    if (note) {
+      if (note.user_id === user_id) {
+        await Notes.update({
+          deletenote:true,
+          highlight:false
+        },{
+          where: {
+            id:note_id,
+          },
+        });
+        res.status(200).send("Delete success");
+      } else {
+        res.status(401).send("You don't have access");
+      }
+    } else {
+      res.status(404).send("not found note");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+// get list note is delete note
+const getListNoteIsDelete = async (req, res) => {
+  try {
+    const notes = await sequelize.query(
+      `select id,title,note_type,folder_id,user_id,status,createdAt from Notes where user_id=${req.user.id} and deletenote=true`
+    );
+
+    if (notes[0].length > 0) {
+      res.status(200).send(
+        notes[0]
+      );
+    } else {
+      res.status(404).send("Not found")
+    }
+  } catch (error) {
+    res.status(500).send(error)
+  }
+};
+
+const searchNote = async (req, res) => {
+  const user_id = req.user.id;
+  const name = req.params.name;
+  try {
+    const notes = await Notes.findAll({
+      where: {
+        title: {
+          [Op.like]: `%${name}%`, //
+        },
+        user_id,
+        deletenote:false
+      },
+    });
+
+    if (notes.length > 0) {
+      res.status(200).send(notes);
+    } else {
+      res.status(404).send("not found");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const getNoteInDayandMonth = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      0,
+      0,
+      0
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59
+    );
+
+    const notesToday = await Notes.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfDay, endOfDay],
+        },
+        user_id: req.user.id,
+        deletenote:false
+      },
+    });
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const notesMonth = await Notes.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [oneMonthAgo, startOfDay],
+        },
+        user_id: req.user.id,
+        deletenote:false
+      },
+    });
+
+    res.status(200).send({
+      notesToday: notesToday,
+      notesMonth: notesMonth,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+// Break
+
+const getNotes = async (req, res) => {
+  try {
+    const notes = await Notes.findAll();
+    if (notes) {
+      res.status(200).send({
+        notes: notes,
+        notes_length: notes.length,
+      });
+    } else {
+      res.status(404).send("Not found");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const editNote = async (req, res) => {
+  const { password_edit, note_id } = req.body;
+  const user_id = req.user.id;
+  try {
+    const note = await Notes.findOne({
+      where: {
+        id: note_id,
+      },
+    });
+    if (note) {
+      if (note.user_id === user_id) {
+        res.status(200).send("You have all permission");
+      }
+
+      if (note.status === "public") {
+        res.status(401).send("You do not have edit permission");
+      } else if (note.status === "private") {
+        res.status(401).send("You do not have edit permission");
+      } else if (note.status === "protected") {
+        if (note.password_edit === password_edit) {
+          const accnote = await AccessNotes.findOne({
+            where: {
+              note_id,
+              user_id,
+            },
+          });
+          if (accnote) {
+            accnote.permission = "EDIT";
+            await accnote.save();
+            res.status(200).send("EDIT permission success !");
+          } else {
+            const newAccessNote = await AccessNotes.create({
+              note_id,
+              user_id,
+              permission: "EDIT",
+            });
+
+            res.status(201).send(newAccessNote);
+          }
+        } else {
+          res.status(400).send("wrong password");
+        }
+      }
+    } else {
+      res.status(404).send("Not found the note");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const getPermission = async (req, res) => {
+  const note_id = parseInt(req.params.id);
+  const user_id = req.user.id;
+  try {
+    const permission = await AccessNotes.findOne({
+      where: {
+        note_id,
+        user_id,
+      },
+    });
+    if (permission) {
+      res.status(200).send(permission);
+    } else {
+      res.status(401).send("You don't have access");
     }
   } catch (error) {
     res.status(500).send(error);
@@ -376,141 +637,9 @@ const accNote = async (req, res) => {
     res.status(500).send(error);
   }
 };
-const editNote = async (req, res) => {
-  const { password_edit, note_id } = req.body;
-  const user_id = req.user.id;
-  try {
-    const note = await Notes.findOne({
-      where: {
-        id: note_id,
-      },
-    });
-    if (note) {
-      if (note.user_id === user_id) {
-        res.status(200).send("You have all permission");
-      }
 
-      if (note.status === "public") {
-        res.status(401).send("You do not have edit permission");
-      } else if (note.status === "private") {
-        res.status(401).send("You do not have edit permission");
-      } else if (note.status === "protected") {
-        if (note.password_edit === password_edit) {
-          const accnote = await AccessNotes.findOne({
-            where: {
-              note_id,
-              user_id,
-            },
-          });
-          if (accnote) {
-            accnote.permission = "EDIT";
-            await accnote.save();
-            res.status(200).send("EDIT permission success !");
-          } else {
-            const newAccessNote = await AccessNotes.create({
-              note_id,
-              user_id,
-              permission: "EDIT",
-            });
 
-            res.status(201).send(newAccessNote);
-          }
-        } else {
-          res.status(400).send("wrong password");
-        }
-      }
-    } else {
-      res.status(404).send("Not found the note");
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
 
-const getNotes = async (req, res) => {
-  try {
-    const notes = await Notes.findAll();
-    if (notes) {
-      res.status(200).send({
-        notes: notes,
-        notes_length: notes.length,
-      });
-    } else {
-      res.status(404).send("Not found");
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
-
-const getPermission = async (req, res) => {
-  const note_id = parseInt(req.params.id);
-  const user_id = req.user.id;
-  try {
-    const permission = await AccessNotes.findOne({
-      where: {
-        note_id,
-        user_id,
-      },
-    });
-    if (permission) {
-      res.status(200).send(permission);
-    } else {
-      res.status(401).send("You don't have access");
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
-
-const getNoteInDayandMonth = async (req, res) => {
-  try {
-    const today = new Date();
-    const startOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      0,
-      0,
-      0
-    );
-    const endOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      23,
-      59,
-      59
-    );
-
-    const notesToday = await Notes.findAll({
-      where: {
-        createdAt: {
-          [Op.between]: [startOfDay, endOfDay],
-        },
-        user_id: req.user.id,
-      },
-    });
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
-    const notesMonth = await Notes.findAll({
-      where: {
-        createdAt: {
-          [Op.between]: [oneMonthAgo, startOfDay],
-        },
-        user_id: req.user.id,
-      },
-    });
-
-    res.status(200).send({
-      notesToday: notesToday,
-      notesMonth: notesMonth,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
 
 const setNoteHighLight = async (req, res) => {
   const note_id = parseInt(req.params.id);
@@ -553,28 +682,7 @@ const getListNoteHighLight = async (req, res) => {
   }
 };
 
-const searchNote = async (req, res) => {
-  const user_id = req.user.id;
-  const name = req.params.name;
-  try {
-    const notes = await Notes.findAll({
-      where: {
-        title: {
-          [Op.like]: `%${name}%`, //
-        },
-        user_id,
-      },
-    });
 
-    if (notes.length > 0) {
-      res.status(200).send(notes);
-    } else {
-      res.status(404).send("not found");
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
 
 module.exports = {
   createNote,
@@ -590,4 +698,7 @@ module.exports = {
   setNoteHighLight,
   getListNoteHighLight,
   searchNote,
+  SetNoteIsDelete,
+  ReturnNote,
+  getListNoteIsDelete
 };

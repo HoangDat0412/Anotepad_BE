@@ -1,24 +1,22 @@
 const jwt = require("jsonwebtoken");
 const { decode_password } = require("../../util/config");
-const authenticateCreate = (req,res,next)=>{
-    const authHeader = req.headers.authorization;
-    if(!authHeader){
-        next()
+const authenticateCreate = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    res.status(403).send("You need to login");
+  }
+
+  jwt.verify(token, decode_password, (err, user) => {
+    if (err) {
+      next();
+    } else {
+      req.user = user;
+      return next();
     }
-    try {
-        const token = authHeader.split(' ')[1];
-        const decode = jwt.verify(token,decode_password);
-        if (decode) {
-            req.user = decode;
-            return next()
-        } else {
-            next()
-        }
-    } catch (error) {
-        next()
-    }
-}
+  });
+};
 
 module.exports = {
-    authenticateCreate
-}
+  authenticateCreate,
+};

@@ -1,3 +1,4 @@
+const { where } = require('sequelize');
 const {Folders,Notes} = require('../models');
 
 const createFolder = async (req,res)=>{
@@ -40,10 +41,21 @@ const getDetailFolder = async (req,res)=>{
                 user_id
             }
         })
-        if(notes){
-            res.status(200).send(notes)
+        const folder = await Folders.findOne({
+            where:{
+                id:folder_id
+            }
+        })
+        if(notes.length > 0){
+            res.status(200).send({
+                folder:folder,
+                notes:notes
+            })
         }else{
-            res.status(404).send("Not found !")
+            res.status(200).send({
+                folder:folder,
+                notes:[]
+            })
         }
     } catch (error) {
         res.status(500).send(error)
